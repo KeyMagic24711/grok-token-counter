@@ -18,9 +18,18 @@
 .gtc-refreshBtn:hover{opacity:.9}.gtc-refreshBtn:active{opacity:.6}
 .gtc-usageRow.gtc-fixed{position:fixed;left:50%;transform:translateX(-50%);bottom:4px;width:min(760px,96vw);background:var(--gtc-float-bg);border:1px solid rgba(127,127,127,.25);border-radius:10px;padding:6px 14px;z-index:2147483646}
 .gtc-usageRow.gtc-inside{position:absolute;left:0;right:0;bottom:0;width:auto;padding-top:2px;padding-bottom:8px;z-index:1}
+/* Token badge: chip style adapted from Claude Token Counter .cc-headerItem (MIT) */
+.gtc-badge{display:inline-flex;align-items:center;flex:0 0 auto;margin-left:8px;padding:3px 9px;border-radius:8px;background:rgba(0,0,0,.05);color:#73726c;font:12px/1.3 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums;user-select:none;vertical-align:middle;cursor:default}
+.gtc-badge--dark{background:rgba(255,255,255,.08);color:#9a988f}
+.gtc-badge--fixed{position:fixed;top:60px;right:16px;margin:0;z-index:2147483645}
+.gtc-badge.gtc-hidden{display:none!important}
+.gtc-badge--fixed{margin:0}
+.gtc-badge--strip{margin:0;padding:0;background:none!important;font-size:11px;color:inherit;flex:0 0 auto}
+.gtc-badge.gtc-badge--fixed{background:#efefef;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.gtc-badge.gtc-badge--fixed.gtc-badge--dark{background:#2a2a2a;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
 .gtc-usageRow{gap:.5rem}
+.gtc-usageRow .gtc-badge--strip{flex:0 0 auto}
 .gtc-usageRow .gtc-bar{min-width:24px}
 
 .gtc-usageRow.gtc-compact .gtc-usageText{flex:0 0 auto}
 .gtc-usageRow.gtc-compact .gtc-bar{flex:1 1 0;min-width:20px}
-

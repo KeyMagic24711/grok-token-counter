@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Grok Token Counter",
-  "version": "0.5.2",
+  "version": "0.6.3",
   "description": "Thanh mức dùng Grok tuần & Grok Bot tuần ngay trong ô chat grok.com (không chính thức). Weekly Grok / Grok Bot usage bars inside the grok.com composer.",
   "permissions": [
     "storage"
@@ -31,7 +31,9 @@
         "https://grok.com/*"
       ],
       "js": [
-        "src/content.js"
+        "src/content.js",
+        "src/vendor/o200k_base.js",
+        "src/badge.js"
       ],
       "css": [
         "src/hud.css"
@@ -40,5 +42,5 @@
       "all_frames": true
     }
   ],
-  "version_name": "0.5.2"
+  "version_name": "0.6.3"
 }
