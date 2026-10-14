@@ -12,6 +12,31 @@ Unofficial, not affiliated with xAI.
 
 Hover a bar to see the exact reset time and when the numbers were last updated. The ↻ button refreshes them.
 
+## Screenshots
+
+The strip sits at the bottom of the chat box. In a normal Grok chat:
+
+![Usage strip in a Grok chat](docs/strip-chat.png)
+
+In a Grok Bot chat:
+
+![Usage strip in a Grok Bot chat](docs/strip-bot.png)
+
+Where it sits on the page (everything except the chat box is blurred on purpose):
+
+| Grok chat | Grok Bot chat |
+|---|---|
+| ![Full page, Grok chat](docs/page-chat.png) | ![Full page, Grok Bot chat](docs/page-bot.png) |
+
+## Reading the strip
+
+From left to right:
+
+- **`161 tokens`**: estimated tokens in the open conversation, counting both your messages and Grok's replies. It updates as new messages come in.
+- **`Grok weekly: 11% (resets in 4d 23h)`**: how much of the weekly Grok limit you've used, plus a bar. The thin dark line on the bar marks how far through the week you are, so if the blue fill is ahead of the line you're using it faster than the limit allows on average.
+- **`Grok Bot weekly: 35%`**: the same for Grok Bot, with its own reset time.
+- **↻**: refresh both numbers now.
+
 ## Install
 
 1. Download the zip from the latest release and unzip it.
@@ -29,6 +54,22 @@ To update, unzip the new version over the same folder and hit the reload icon on
 - Tokens are counted locally with the o200k tokenizer from gpt-tokenizer. Grok uses a different tokenizer, so treat the number as a rough estimate.
 
 Everything stays in your browser. The extension only talks to grok.com, using your existing session.
+
+## Uninstall
+
+Remove it from `chrome://extensions`. It doesn't store anything outside the browser, so there's nothing else to clean up.
+
+## Troubleshooting
+
+- **Nothing shows up:** check the extension is enabled, then reload the grok.com tab. The strip only appears on chat pages.
+- **"no data yet":** you may be signed out, or grok.com changed an internal API. Open Settings > Usage once; the extension can read the numbers from there.
+- **Token count looks off:** it's an estimate using a different tokenizer than Grok's, and it only counts messages loaded on the page.
+
+## Changelog
+
+- **0.6.4**: plan-neutral wording, README cleanup.
+- **0.6.3**: conversation token counter at the start of the strip, for both Grok and Grok Bot chats.
+- **0.5.2**: Grok weekly and Grok Bot weekly bars in the chat box, Grok Bot data fetched in the background.
 
 ## Notes
 
