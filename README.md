@@ -67,6 +67,7 @@ Remove it from `chrome://extensions`. It doesn't store anything outside the brow
 
 ## Changelog
 
+- **0.6.5**: English-only interface and code comments.
 - **0.6.4**: plan-neutral wording, README cleanup.
 - **0.6.3**: conversation token counter at the start of the strip, for both Grok and Grok Bot chats.
 - **0.5.2**: Grok weekly and Grok Bot weekly bars in the chat box, Grok Bot data fetched in the background.

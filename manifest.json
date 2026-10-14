@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Grok Token Counter",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Grok weekly and Grok Bot weekly usage bars plus an approximate token count inside the grok.com chat box (unofficial).",
   "permissions": [
     "storage"

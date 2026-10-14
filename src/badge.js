@@ -4,11 +4,9 @@
 (() => {
   'use strict';
   if (window.top !== window || document.getElementById('gtc-badge')) return;
-  const VI = /^vi\b/i.test(navigator.language || '');
-  const LOCALE = VI ? 'vi-VN' : 'en-US';
-  const T = VI
-    ? { unit: 'token', tip: 'Ước tính số token của toàn bộ cuộc trò chuyện đang mở (tokenizer o200k, đếm offline). Tokenizer thật của Grok khác nên chỉ mang tính tham khảo.', src: { api: 'Nguồn: dữ liệu hội thoại từ grok.com', dom: 'Nguồn: nội dung hiển thị trên trang' } }
-    : { unit: 'tokens', tip: 'Estimated tokens of the whole open conversation (o200k tokenizer, counted offline). Grok\'s real tokenizer differs, so treat it as approximate.', src: { api: 'Source: grok.com conversation data', dom: 'Source: visible page content' } };
+  const LOCALE = 'en-US';
+  const T =
+      { unit: 'tokens', tip: 'Estimated tokens of the whole open conversation (o200k tokenizer, counted offline). Grok\'s real tokenizer differs, so treat it as approximate.', src: { api: 'Source: grok.com conversation data', dom: 'Source: visible page content' } };
 
   const pill = document.createElement('span');
   pill.id = 'gtc-badge'; pill.className = 'gtc-badge gtc-hidden'; pill.setAttribute('role', 'status');

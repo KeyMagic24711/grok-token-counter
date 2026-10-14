@@ -6,15 +6,11 @@
   const IN_FRAME = window.top !== window;
   if (IN_FRAME && window.name !== 'gtc-usage-frame') return;
   if (document.getElementById('gtc-strip')) return;
-  const VI = /^vi\b/i.test(navigator.language || '');
-  const T = VI ? {
-    grok: 'Grok tuần', bot: 'Grok Bot tuần', resetsIn: 'reset sau', resetAt: 'Reset lúc', upd: 'cập nhật lúc', openUsage: 'mở Usage để cập nhật',
-    nodata: 'chưa có dữ liệu', refresh: 'Làm mới (mở Usage ngầm nếu cần)', src1: 'Nguồn: API GetGrokCreditsConfig', src2: 'Nguồn: Cài đặt > Usage', src3: 'Nguồn: WebSocket bot.usage', cached: ' (bộ nhớ đệm)'
-  } : {
+  const T = {
     grok: 'Grok weekly', bot: 'Grok Bot weekly', resetsIn: 'resets in', resetAt: 'Resets at', upd: 'updated at', openUsage: 'open Usage to update',
     nodata: 'no data yet', refresh: 'Refresh (opens Usage in background if needed)', src1: 'Source: GetGrokCreditsConfig API', src2: 'Source: Settings > Usage', src3: 'Source: WebSocket bot.usage', cached: ' (cached)'
   };
-  const LOCALE = VI ? 'vi-VN' : undefined;
+  const LOCALE = undefined;
   // Product ids / names treated as "Grok Bot". Unknown until confirmed on a live
   // account; override: localStorage.setItem("gtcGrokBotId", N) on grok.com.
   let BOT_IDS = [];
@@ -36,7 +32,7 @@
   let dom = null;
   try { dom = JSON.parse(localStorage.getItem(DOM_KEY) || 'null'); } catch (e) {}
   if (store) store.get([DOM_KEY], v => { if (v[DOM_KEY] && (!dom || v[DOM_KEY].at > dom.at)) { dom = v[DOM_KEY]; render(); } });
-  // Reset date parser: English + Vietnamese + generic d/m/y HH:MM.
+  // Reset date parser: English, localized (non-ASCII written as \u escapes) and generic d/m/y HH:MM.
   function mkDate(y, mo, d, h, mi, ap) {
     h = +h; mi = +mi;
     if (ap) { const pm = /^(p|ch)/i.test(ap); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
@@ -45,21 +41,21 @@
     if (!y && t < Date.now() - 864e5) t = new Date(yy + 1, +mo - 1, +d, h, mi).getTime();
     return Number.isFinite(t) && +mo >= 1 && +mo <= 12 && +d >= 1 && +d <= 31 ? t : null;
   }
-  const AP = '(?:\\s*(SA|CH|AM|PM|a\\.m\\.|p\\.m\\.)(?![A-Za-zÀ-ỹ]))?';
+  const AP = '(?:\\s*(SA|CH|AM|PM|a\\.m\\.|p\\.m\\.)(?![A-Za-z\u00c0-\u1ef9]))?';
   function parseReset(txt) {
     if (!txt) return null;
     // focus on text after a reset keyword when present
-    const k = txt.search(/Resets?|Đặt lại|Làm mới|Reset|Khôi phục/i);
+    const k = txt.search(/Resets?|\u0110\u1eb7t l\u1ea1i|L\u00e0m m\u1edbi|Reset|Kh\u00f4i ph\u1ee5c/i);
     const t = k >= 0 ? txt.slice(k) : txt;
     let m;
     // English: "October 19, 2026 at 11:34 AM" / "Oct 19 11:25 AM"
     m = t.match(/([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:,?\s*(\d{4}))?\s*(?:at|,)?\s*(\d{1,2}):(\d{2})\s*([AP]\.?M\.?)?/i);
     if (m) { const mo = 'janfebmaraprmayjunjulaugsepoctnovdec'.indexOf(m[1].slice(0, 3).toLowerCase()); if (mo >= 0 && mo % 3 === 0) { const r = mkDate(m[3], mo / 3 + 1, m[2], m[4], m[5], m[6]); if (r) return r; } }
-    // Vietnamese: "19 thg 10, 2026 lúc 11:34" / "19 tháng 10 năm 2026 11:34"
-    m = t.match(new RegExp('(\\d{1,2})\\s*(?:thg|tháng)\\s*(\\d{1,2})(?:,?\\s*(?:năm\\s*)?(\\d{4}))?\\D{0,10}?(\\d{1,2}):(\\d{2})' + AP, 'i'));
+    // Localized grok.com date format (e.g. Vietnamese UI): day, month word, year, time
+    m = t.match(new RegExp('(\\d{1,2})\\s*(?:thg|th\u00e1ng)\\s*(\\d{1,2})(?:,?\\s*(?:n\u0103m\\s*)?(\\d{4}))?\\D{0,10}?(\\d{1,2}):(\\d{2})' + AP, 'i'));
     if (m) { const r = mkDate(m[3], m[2], m[1], m[4], m[5], m[6]); if (r) return r; }
     // "11:34 19 thg 10, 2026" (time first)
-    m = t.match(new RegExp('(\\d{1,2}):(\\d{2})' + AP + '\\D{0,10}?(\\d{1,2})\\s*(?:thg|tháng)\\s*(\\d{1,2})(?:,?\\s*(?:năm\\s*)?(\\d{4}))?', 'i'));
+    m = t.match(new RegExp('(\\d{1,2}):(\\d{2})' + AP + '\\D{0,10}?(\\d{1,2})\\s*(?:thg|th\u00e1ng)\\s*(\\d{1,2})(?:,?\\s*(?:n\u0103m\\s*)?(\\d{4}))?', 'i'));
     if (m) { const r = mkDate(m[6], m[5], m[4], m[1], m[2], m[3]); if (r) return r; }
     // "11:34 19/10/2026"
     m = t.match(new RegExp('(\\d{1,2}):(\\d{2})' + AP + '\\D{0,10}?(\\d{1,2})[/.-](\\d{1,2})(?:[/.-](\\d{4}))?'));
@@ -70,7 +66,7 @@
     // ISO "YYYY-MM-DD HH:MM"
     m = t.match(/(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
     if (m) return mkDate(m[1], m[2], m[3], m[4], m[5]);
-    if (k >= 0 && t !== txt) return parseReset(txt.replace(/Resets?|Đặt lại|Làm mới|Khôi phục/gi, ' '));
+    if (k >= 0 && t !== txt) return parseReset(txt.replace(/Resets?|\u0110\u1eb7t l\u1ea1i|L\u00e0m m\u1edbi|Kh\u00f4i ph\u1ee5c/gi, ' '));
     return null;
   }
   // Language-independent Usage reader: find usage bars, group into cards,
@@ -117,7 +113,7 @@
       const label = bar.getAttribute('aria-label') || '';
       const txt = card.textContent.replace(/\s+/g, ' ');
       cards.push({ bar, card, ...p, head, label, isPB: bar.getAttribute('role') === 'progressbar', resetAt: parseReset(txt),
-        weekly: /weekly|hàng tuần|mỗi tuần|tuần/i.test(head + ' ' + txt) });
+        weekly: /weekly|h\u00e0ng tu\u1ea7n|m\u1ed7i tu\u1ea7n|tu\u1ea7n/i.test(head + ' ' + txt) });
     }
     cards.sort((a, b) => (a.bar.compareDocumentPosition(b.bar) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
     const isBot = c => /grok\s*bot/i.test(c.label) || /grok\s*bot/i.test(c.head);
@@ -342,7 +338,7 @@
     span.title = bar.bar.title = tip || '';
     if (typeof pct !== 'number' || !Number.isFinite(pct)) { bar.fill.style.width = '0%'; bar.marker.classList.add('gtc-hidden'); return; }
     const p = Math.round(pct * 10) / 10;
-    span.dataset.label = `${label}: ${Math.round(p)}%`; span.dataset.short = `${label.replace(/\s*(weekly|tuần)$/i, '')}: ${Math.round(p)}%`; span.dataset.reset = resetMs || '';
+    span.dataset.label = `${label}: ${Math.round(p)}%`; span.dataset.short = `${label.replace(/\s*(weekly|tu\u1ea7n)$/i, '')}: ${Math.round(p)}%`; span.dataset.reset = resetMs || '';
     retime(span);
     const w = Math.max(0, Math.min(100, pct));
     bar.fill.style.width = `${w}%`;
@@ -358,10 +354,10 @@
     const compact = strip.clientWidth > 0 && strip.clientWidth < 640;
     strip.classList.toggle('gtc-compact', compact);
     const base = compact ? span.dataset.short : span.dataset.label;
-    const t = r ? (compact ? `${base} · ${formatResetCountdown(r)}` : `${base} (${T.resetsIn} ${formatResetCountdown(r)})`) : base;
+    const t = r ? (compact ? `${base} \u00b7 ${formatResetCountdown(r)}` : `${base} (${T.resetsIn} ${formatResetCountdown(r)})`) : base;
     if (span.textContent !== t) span.textContent = t;
   }
-  const planTxt = () => (state.bot && state.bot.planLabel ? ` · ${state.bot.planLabel}` : '');
+  const planTxt = () => (state.bot && state.bot.planLabel ? ` \u00b7 ${state.bot.planLabel}` : '');
   function tipFor(src, resetAt, at) {
     const l = [src];
     if (resetAt) l.push(`${T.resetAt}: ${fmtDate(resetAt)}`);
