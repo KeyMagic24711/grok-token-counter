@@ -1,50 +1,47 @@
-# Grok Token Counter 0.6.3 (không chính thức)
+# Grok Token Counter
 
-Tiện ích Chrome (Manifest V3) hiện một dải mỏng **bên trong ô chat của grok.com**, sát mép dưới và nằm dưới hàng nút (+, Auto, mic):
+Unofficial Chrome extension (Manifest V3) for **grok.com**. It shows a slim usage strip inside the chat composer, along the bottom edge below the control row:
 
 ```
-Grok tuần: 6% (reset sau 5d 23h) [■■|──────]   [■■■|─────] Grok Bot tuần: 24% (reset sau 5d 23h) ↻
+1,234 tokens · Grok weekly: 6% (resets in 5d 23h) [■■|─────]   [■■■|────] Grok Bot weekly: 24% (resets in 5d 23h) ↻
 ```
 
-- **Grok tuần (SuperGrok):** % quỹ dùng hằng tuần, lấy từ API `GetGrokCreditsConfig` của grok.com.
-- **Grok Bot tuần:** % đã dùng, lấy ngầm qua WebSocket của grok.com (`wss://grok.com/ws/bot/`: gửi lời chào `protocol_version 1.0.0`, sau đó gọi `bot.usage`). Lấy khi tải trang và mỗi 5 phút, **không cần mở trang Usage**.
-  - Nếu không lấy được thì dùng số liệu đọc từ Cài đặt > Usage. Trình đọc này hiểu cả giao diện tiếng Việt lẫn tiếng Anh.
-- Thanh màu xanh khi còn ít, vàng từ 75%, đỏ từ 90%. Vạch đen là phần thời gian đã trôi qua của kỳ.
-- Rê chuột lên để xem nguồn số liệu, giờ reset chính xác và giờ cập nhật. Nút ↻ để làm mới.
-- Nhãn tiếng Việt khi trình duyệt dùng tiếng Việt, ngược lại là tiếng Anh.
+## Features
+- **Conversation token count** (v0.6+): estimated tokens of the whole open conversation, counted offline with the bundled `o200k_base` tokenizer (gpt-tokenizer, MIT). Grok's real tokenizer is different, so treat the number as an approximation.
+  - It works in both normal Grok chats and Grok Bot chats, and updates on new messages and navigation.
+  - It is hidden on the empty home page.
+- **Grok weekly (SuperGrok):** weekly usage % and reset time, from grok.com's `GetGrokCreditsConfig` API.
+- **Grok Bot weekly:** usage % and reset time, fetched in the background over grok.com's own WebSocket (`wss://grok.com/ws/bot/`: hello frame `protocol_version 1.0.0`, then JSON-RPC `bot.usage`). It runs on page load and every 5 minutes, so you don't need to open the Usage page.
+  - Fallback: values read from Settings > Usage. The reader works with both the English and the Vietnamese UI.
+- Bars are blue while usage is low, amber from 75% and red from 90%. A thin black tick marks how much of the period has elapsed.
+- Hover for the data source, the exact reset date/time and the last update time. Press ↻ to refresh.
+- The strip switches to short labels in narrow composers and always stays on one row.
+- UI labels follow the browser language (Vietnamese or English).
 
-- **Huy hiệu token:** viên nhỏ màu xám, ví dụ `1.234 token`. Hiện mỗi khi có tin nhắn (cả chat Grok thường lẫn chat Grok Bot), ẩn ở trang chủ trống. Chọn vị trí bằng cách gõ vào Console của grok.com rồi tải lại trang:
-  - `localStorage.setItem('gtcBadgePos','right')`: nằm cùng hàng, ngay bên trái cụm nút góc trên bên phải (…, chia sẻ, bảng bên).
-  - `localStorage.setItem('gtcBadgePos','left')`: góc trên bên trái của khung chat, sát mép thanh bên.
-  - `localStorage.setItem('gtcBadgePos','strip')`: mặc định, đứng đầu dải mức dùng trong ô chat (`1.234 token · Grok tuần …`).
-  - Đây là số **ước tính** cho toàn bộ cuộc trò chuyện đang mở, đếm offline bằng tokenizer `o200k_base` (gpt-tokenizer, MIT). Ưu tiên dữ liệu hội thoại grok.com tải về; nếu không có thì đếm nội dung đang hiển thị.
-  - Tự cập nhật khi có tin nhắn mới và khi chuyển cuộc trò chuyện.
+**Privacy:** the extension only talks to grok.com, using your existing session. No telemetry, no third-party requests. Data is stored locally in the browser only.
 
-**Quyền riêng tư:** chỉ kết nối tới chính grok.com bằng phiên đăng nhập sẵn có. Không gửi dữ liệu đi đâu khác, không telemetry. Số liệu chỉ lưu trong trình duyệt.
+## Install
+1. Download the `.zip` from a release and unzip it into a folder.
+2. Open `chrome://extensions` (Edge: `edge://extensions`) and enable **Developer mode**.
+3. Click **Load unpacked** and select the folder that contains `manifest.json`.
+4. Open or reload https://grok.com.
 
-## Cài đặt
-1. Giải nén `grok-token-counter.zip` ra một thư mục (ví dụ `GrokTokenCounter`).
-2. Mở `chrome://extensions` (Edge: `edge://extensions`) và bật **Developer mode** (Chế độ nhà phát triển).
-3. Bấm **Load unpacked** (Tải tiện ích đã giải nén) rồi chọn thư mục chứa `manifest.json`.
-4. Mở/tải lại https://grok.com.
+**Update:** unzip the new version over the same folder, click ↻ on the extension card in `chrome://extensions`, then reload grok.com.
 
-**Cập nhật:** giải nén đè vào cùng thư mục, bấm ↻ trên thẻ tiện ích ở `chrome://extensions`, rồi tải lại grok.com.
+## Options (grok.com DevTools console)
+- Token badge position: `localStorage.setItem('gtcBadgePos', 'strip' | 'right' | 'left')`, then reload. The default is `strip`.
+- Debug logging, off by default: `localStorage.setItem('gtcDebug', '1')`, then reload. Filter the console by `[GTC-WS]`, `[GTC-NET]` or `[GTC-FIND]`. Turn it off with `localStorage.removeItem('gtcDebug')`.
 
-## Gỡ lỗi
-Nhật ký mặc định tắt. Để bật, gõ vào Console của grok.com `localStorage.setItem('gtcDebug','1')` rồi tải lại trang. Lọc theo `[GTC-WS]`, `[GTC-NET]` hoặc `[GTC-FIND]`. Tắt bằng `localStorage.removeItem('gtcDebug')`.
+## Releases
+- **v0.6.3** (latest, with token counter): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.6.3
+- **v0.5.2** (usage bars only, no token counter): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.5.2
 
-## Giới hạn
-- API, WebSocket và giao diện của grok.com là nội bộ, có thể thay đổi bất cứ lúc nào. Khi đó dải sẽ báo "chưa có dữ liệu" hoặc "mở Usage để cập nhật".
+## Limitations
+- grok.com's APIs, WebSocket protocol and UI are internal and may change at any time. If they do, the strip shows "no data yet" or asks you to open Usage.
 
-## Ghi công
-- Giao diện dải mức dùng và huy hiệu token (thanh, vạch thời gian, cách gắn vào ô chat, kiểu viên chip) được chuyển thể từ **Claude Token Counter** (kr1shnasomani, MIT, xem `LICENSE-claude-token-counter`).
-- Endpoint credits và cách giải mã lấy từ **Grok Usage Watch** (JoshuaWang2211, MIT, xem `LICENSE-grok-usage-watch`).
-
-## Phiên bản / Releases
-- **v0.6.3** (mới nhất, có đếm token / with token counter): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.6.3
-- **v0.5.2** (không có đếm token / no token counter, chỉ dải mức dùng / usage strip only): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.5.2
-
-Tải file `.zip` trong release, giải nén, rồi vào `chrome://extensions`, bật Developer mode và bấm Load unpacked.
-Download the release `.zip`, unzip it, then open `chrome://extensions`, enable Developer mode and click Load unpacked.
+## Credits
+- The usage strip and chip UI (bars, elapsed-time tick, composer anchoring) are adapted from **Claude Token Counter** by kr1shnasomani (MIT, see `LICENSE-claude-token-counter`).
+- The credits endpoint and protobuf decoding are based on **Grok Usage Watch** by JoshuaWang2211 (MIT, see `LICENSE-grok-usage-watch`).
+- Tokenizer: gpt-tokenizer `o200k_base` (MIT).
 
 *Unofficial. Not affiliated with xAI.*
