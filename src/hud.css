@@ -1,0 +1,26 @@
+/* Usage row styling adapted from Claude Token Counter src/styles.css
+   (MIT, (c) kr1shnasomani): .cc-usageRow / .cc-bar / .cc-bar__marker etc. */
+.gtc-strip{--gtc-text:#8a8a8a;--gtc-bold:#141413;--gtc-stroke:#bfbfbf;--gtc-fill:#5aa6ff;--gtc-fill-caution:#f0b544;--gtc-fill-warn:#ce2029;--gtc-marker:#111111;--gtc-float-bg:#ffffff}
+.gtc-strip.gtc-dark{--gtc-text:#9a988f;--gtc-bold:#faf9f5;--gtc-stroke:#787877;--gtc-fill:#2c84db;--gtc-marker:#ffffff;--gtc-float-bg:#2b2a27}
+.gtc-usageRow{display:flex;flex-direction:row;align-items:center;gap:.75rem;width:100%;position:relative;box-sizing:border-box;margin:0;padding:2px 16px 8px;flex-shrink:0;z-index:50;user-select:none;font:11px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--gtc-text)}
+.gtc-usageGroup{display:flex;align-items:center;gap:8px;flex:1 1 0;min-width:0;overflow:hidden}
+.gtc-usageGroup--weekly{justify-content:flex-end}
+.gtc-usageText{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.gtc-link{cursor:pointer;text-decoration:underline dotted}
+.gtc-bar{position:relative;box-sizing:border-box;width:100%;height:10px;flex:1 1 40px;min-width:30px;border-radius:3px;border:1px solid var(--gtc-stroke);overflow:visible;user-select:none}
+.gtc-bar__fill{width:0%;height:100%;background:var(--gtc-fill);transition:width 300ms ease,background-color 300ms ease;border-radius:2px 0 0 2px}
+.gtc-bar__fill.gtc-full{border-radius:2px}
+.gtc-bar__fill.gtc-caution{background:var(--gtc-fill-caution)}
+.gtc-bar__fill.gtc-warn{background:var(--gtc-fill-warn)}
+.gtc-bar__marker{position:absolute;top:0;bottom:0;left:0%;width:2px;background:var(--gtc-marker);pointer-events:none}
+.gtc-hidden{display:none!important}
+.gtc-refreshBtn{all:unset;color:var(--gtc-text);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;opacity:.7;padding:2px}
+.gtc-refreshBtn:hover{opacity:.9}.gtc-refreshBtn:active{opacity:.6}
+.gtc-usageRow.gtc-fixed{position:fixed;left:50%;transform:translateX(-50%);bottom:4px;width:min(760px,96vw);background:var(--gtc-float-bg);border:1px solid rgba(127,127,127,.25);border-radius:10px;padding:6px 14px;z-index:2147483646}
+.gtc-usageRow.gtc-inside{position:absolute;left:0;right:0;bottom:0;width:auto;padding-top:2px;padding-bottom:8px;z-index:1}
+.gtc-usageRow{gap:.5rem}
+.gtc-usageRow .gtc-bar{min-width:24px}
+
+.gtc-usageRow.gtc-compact .gtc-usageText{flex:0 0 auto}
+.gtc-usageRow.gtc-compact .gtc-bar{flex:1 1 0;min-width:20px}
+
