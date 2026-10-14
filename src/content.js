@@ -121,9 +121,10 @@
     }
     cards.sort((a, b) => (a.bar.compareDocumentPosition(b.bar) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1);
     const isBot = c => /grok\s*bot/i.test(c.label) || /grok\s*bot/i.test(c.head);
-    const isSG = c => /super\s*grok/i.test(c.head) || /super\s*grok/i.test(c.label);
-    let bot = cards.find(isBot), sg = cards.find(isSG);
-    if (!sg) sg = cards.find(c => c !== bot && !c.isPB) || null;           // multi-segment, non-progressbar bar
+    // Grok weekly = the weekly card that is not Grok Bot (plan name in the heading varies by plan).
+    let bot = cards.find(isBot);
+    const others = cards.filter(c => c !== bot);
+    let sg = others.find(c => c.weekly && !c.isPB) || others.find(c => c.weekly) || others.find(c => !c.isPB) || null;
     if (!bot) bot = cards.find(c => c !== sg && c.isPB) || cards.filter(c => c !== sg)[0] || null; // second weekly card
     const pack = c => c ? { pct: c.pct, resetAt: c.resetAt, src: c.src } : null;
     return { bot: pack(bot), sg: pack(sg), n: cards.length };
@@ -132,8 +133,8 @@
     try {
       const r = readUsageCards(); const bot = r.bot, sg = r.sg;
       if (!bot && !sg) return false;
-      const next = { at: Date.now(), grokBot: bot || (dom && dom.grokBot) || null, superGrok: sg || (dom && dom.superGrok) || null };
-      const changed = !dom || JSON.stringify([next.grokBot, next.superGrok]) !== JSON.stringify([dom.grokBot, dom.superGrok]) || Date.now() - dom.at > 60000;
+      const next = { at: Date.now(), grokBot: bot || (dom && dom.grokBot) || null, grokWeekly: sg || (dom && (dom.grokWeekly || dom.superGrok)) || null };
+      const changed = !dom || JSON.stringify([next.grokBot, next.grokWeekly]) !== JSON.stringify([dom.grokBot, dom.grokWeekly]) || Date.now() - dom.at > 60000;
       if (changed) {
         dom = next;
         try { localStorage.setItem(DOM_KEY, JSON.stringify(dom)); } catch (e) {}
@@ -360,6 +361,7 @@
     const t = r ? (compact ? `${base} · ${formatResetCountdown(r)}` : `${base} (${T.resetsIn} ${formatResetCountdown(r)})`) : base;
     if (span.textContent !== t) span.textContent = t;
   }
+  const planTxt = () => (state.bot && state.bot.planLabel ? ` · ${state.bot.planLabel}` : '');
   function tipFor(src, resetAt, at) {
     const l = [src];
     if (resetAt) l.push(`${T.resetAt}: ${fmtDate(resetAt)}`);
@@ -375,8 +377,8 @@
     if (IN_FRAME) return;
     applyTheme();
     const c = state.credits;
-    if (c) { ui.gText.classList.remove('gtc-link'); paintWindow(c.used, c.resetAt, T.grok, ui.gText, ui.g, tipFor(T.src1, c.resetAt, state.creditsAt)); }
-    else if (dom && dom.superGrok) { ui.gText.classList.remove('gtc-link'); paintWindow(dom.superGrok.pct, dom.superGrok.resetAt, T.grok, ui.gText, ui.g, tipFor(T.src2, dom.superGrok.resetAt, dom.at)); }
+    if (c) { ui.gText.classList.remove('gtc-link'); paintWindow(c.used, c.resetAt, T.grok, ui.gText, ui.g, tipFor(T.src1 + planTxt(), c.resetAt, state.creditsAt)); }
+    else if (dom && (dom.grokWeekly || dom.superGrok)) { const gw = dom.grokWeekly || dom.superGrok; ui.gText.classList.remove('gtc-link'); paintWindow(gw.pct, gw.resetAt, T.grok, ui.gText, ui.g, tipFor(T.src2 + planTxt(), gw.resetAt, dom.at)); }
     else placeholder(ui.gText, ui.g, `${T.grok}: ${T.nodata}`, false);
     const sb = state.bot, botLive = sb && (!dom || !dom.grokBot || sb.at >= dom.at - 60000);
     if (botLive) { ui.bText.classList.remove('gtc-link'); delete ui.bText.dataset.a; paintWindow(sb.pct, sb.resetAt, T.bot, ui.bText, ui.b, tipFor(T.src3 + (sb.cached ? T.cached : ''), sb.resetAt, sb.at), sb.startMs); }

@@ -1,47 +1,48 @@
 # Grok Token Counter
 
-Unofficial Chrome extension (Manifest V3) for **grok.com**. It shows a slim usage strip inside the chat composer, along the bottom edge below the control row:
+A small Chrome extension that shows your Grok usage and an approximate token count right inside the grok.com chat box.
 
-```
-1,234 tokens · Grok weekly: 6% (resets in 5d 23h) [■■|─────]   [■■■|────] Grok Bot weekly: 24% (resets in 5d 23h) ↻
-```
+Unofficial, not affiliated with xAI.
 
-## Features
-- **Conversation token count** (v0.6+): estimated tokens of the whole open conversation, counted offline with the bundled `o200k_base` tokenizer (gpt-tokenizer, MIT). Grok's real tokenizer is different, so treat the number as an approximation.
-  - It works in both normal Grok chats and Grok Bot chats, and updates on new messages and navigation.
-  - It is hidden on the empty home page.
-- **Grok weekly (SuperGrok):** weekly usage % and reset time, from grok.com's `GetGrokCreditsConfig` API.
-- **Grok Bot weekly:** usage % and reset time, fetched in the background over grok.com's own WebSocket (`wss://grok.com/ws/bot/`: hello frame `protocol_version 1.0.0`, then JSON-RPC `bot.usage`). It runs on page load and every 5 minutes, so you don't need to open the Usage page.
-  - Fallback: values read from Settings > Usage. The reader works with both the English and the Vietnamese UI.
-- Bars are blue while usage is low, amber from 75% and red from 90%. A thin black tick marks how much of the period has elapsed.
-- Hover for the data source, the exact reset date/time and the last update time. Press ↻ to refresh.
-- The strip switches to short labels in narrow composers and always stays on one row.
-- UI labels follow the browser language (Vietnamese or English).
+## What it shows
 
-**Privacy:** the extension only talks to grok.com, using your existing session. No telemetry, no third-party requests. Data is stored locally in the browser only.
+- An estimated token count for the open conversation (normal chats and Grok Bot chats).
+- Grok weekly usage: percent used and time until reset. It should work on any Grok plan that has a weekly limit.
+- Grok Bot weekly usage, with its own reset time.
+
+Hover a bar to see the exact reset time and when the numbers were last updated. The ↻ button refreshes them.
 
 ## Install
-1. Download the `.zip` from a release and unzip it into a folder.
-2. Open `chrome://extensions` (Edge: `edge://extensions`) and enable **Developer mode**.
-3. Click **Load unpacked** and select the folder that contains `manifest.json`.
-4. Open or reload https://grok.com.
 
-**Update:** unzip the new version over the same folder, click ↻ on the extension card in `chrome://extensions`, then reload grok.com.
+1. Download the zip from the latest release and unzip it.
+2. Open `chrome://extensions` and turn on Developer mode.
+3. Click "Load unpacked" and pick the unzipped folder.
+4. Reload grok.com.
 
-## Options (grok.com DevTools console)
-- Token badge position: `localStorage.setItem('gtcBadgePos', 'strip' | 'right' | 'left')`, then reload. The default is `strip`.
-- Debug logging, off by default: `localStorage.setItem('gtcDebug', '1')`, then reload. Filter the console by `[GTC-WS]`, `[GTC-NET]` or `[GTC-FIND]`. Turn it off with `localStorage.removeItem('gtcDebug')`.
+To update, unzip the new version over the same folder and hit the reload icon on the extension card.
 
-## Releases
-- **v0.6.3** (latest, with token counter): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.6.3
-- **v0.5.2** (usage bars only, no token counter): https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.5.2
+## How it gets the numbers
 
-## Limitations
-- grok.com's APIs, WebSocket protocol and UI are internal and may change at any time. If they do, the strip shows "no data yet" or asks you to open Usage.
+- Grok weekly usage comes from the same billing endpoint the grok.com settings page uses.
+- Grok Bot usage comes from grok.com's bot WebSocket (`bot.usage`), checked on page load and every 5 minutes.
+- If either of those fails, it falls back to reading Settings > Usage when you open it.
+- Tokens are counted locally with the o200k tokenizer from gpt-tokenizer. Grok uses a different tokenizer, so treat the number as a rough estimate.
+
+Everything stays in your browser. The extension only talks to grok.com, using your existing session.
+
+## Notes
+
+- These are internal grok.com APIs, so they can change without warning. If the bars say "no data yet", that's probably what happened.
+- The token count can be moved: run `localStorage.setItem('gtcBadgePos', 'right')` (or `'left'`, or `'strip'`, the default) in the grok.com console and reload.
+- Debug logging is off. Turn it on with `localStorage.setItem('gtcDebug', '1')`.
+- Older version without the token counter: [v0.5.2](https://github.com/KeyMagic24711/grok-token-counter/releases/tag/v0.5.2).
 
 ## Credits
-- The usage strip and chip UI (bars, elapsed-time tick, composer anchoring) are adapted from **Claude Token Counter** by kr1shnasomani (MIT, see `LICENSE-claude-token-counter`).
-- The credits endpoint and protobuf decoding are based on **Grok Usage Watch** by JoshuaWang2211 (MIT, see `LICENSE-grok-usage-watch`).
-- Tokenizer: gpt-tokenizer `o200k_base` (MIT).
 
-*Unofficial. Not affiliated with xAI.*
+- The usage bar UI is adapted from [Claude Token Counter](https://github.com/kr1shnasomani/claude-token-counter) (MIT).
+- The credits endpoint decoding is based on [Grok Usage Watch](https://github.com/JoshuaWang2211/grok-usage-watch) (MIT).
+- Tokenizer: [gpt-tokenizer](https://github.com/niieani/gpt-tokenizer) (MIT).
+
+## License
+
+MIT. The third-party license texts are in `LICENSE-claude-token-counter` and `LICENSE-grok-usage-watch`.
